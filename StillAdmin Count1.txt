@@ -1,0 +1,19 @@
+ $UsersInAdminGroups = (Get-ADGroup -LDAPFilter '(adminCount=1)') | 
+    ForEach-Object {
+        # Get all users from all admin groups recursively
+        Get-ADGroupMember $_ -Recursive | Where-Object {$_.ObjectClass -eq 'User'}
+    }  | Sort-Object distinguishedname | Select-Object -Unique
+
+    $admincountuser=Get-ADUser -LDAPFilter '(adminCount=1)' |select Samaccountname
+    ForEach($admincountuser in $admincountuser.samaccountname){
+    
+    if(($admincountuser -notin $UsersInAdminGroups.samaccountname)-and ($admincountuser -ne "krbtgt")){
+    Write-Host "Not admin", $admincountuser -ForegroundColor Red} 
+    
+    else{
+    
+    Write-Host "Still admin User", $admincountuser -ForegroundColor Green
+    
+    }
+
+    }
